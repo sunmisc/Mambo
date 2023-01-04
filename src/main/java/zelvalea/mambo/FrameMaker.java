@@ -35,9 +35,9 @@ public abstract class FrameMaker {
         private final int x1, y1;
         private final int x2, y2;
 
-        public BulkTask(int[] data, int threshold,
-                        int x1, int y1,
-                        int x2, int y2) {
+        BulkTask(int[] data, int threshold,
+                 int x1, int y1,
+                 int x2, int y2) {
             this.data = data;
             this.threshold = threshold;
             this.x1 = x1;
