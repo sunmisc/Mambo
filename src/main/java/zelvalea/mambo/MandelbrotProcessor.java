@@ -2,7 +2,7 @@ package zelvalea.mambo;
 
 public final class MandelbrotProcessor extends FrameMaker {
 
-    private static final int MAX_ITERATIONS = 600;
+    private static final int MAX_ITERATIONS = 500;
     private static final double CENTER_X = -0.77568377;
     private static final double CENTER_Y  = 0.13646737;
 

@@ -25,7 +25,7 @@ public abstract class FrameMaker {
         int threshold = data.length / (NCPU << 1);
         new BulkTask(data, threshold, 0, 0, size, size).invoke();
 
-        scale *= 0.95D;
+        scale *= 0.965D;
     }
 
     private final class BulkTask extends RecursiveAction {
@@ -50,8 +50,8 @@ public abstract class FrameMaker {
             int t = threshold;
             if ((x2 - x1) * (y2 - y1) <= t) {
                 chunkRender(
-                        x1, Math.min(x2, data.length),
-                        y1, Math.min(y2, data.length),
+                        x1, Math.min(x2, size),
+                        y1, Math.min(y2, size),
                         data
                 );
             } else {
