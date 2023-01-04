@@ -6,36 +6,40 @@ public final class MandelbrotProcessor extends FrameMaker {
     private static final double CENTER_X = -0.77568377;
     private static final double CENTER_Y  = 0.13646737;
 
+    private final int half;
+
     public MandelbrotProcessor(int width, int height) {
         super(width, height);
+        this.half = size >>> 1;
     }
 
     @Override
     public void chunkRender(int x_from, int x_to,
                             int y_from, int y_to,
                             int[] data) {
+
         for (int x = x_from; x < x_to; x++) {
             for (int y = y_from; y < y_to; y++) {
 
-                double xH = size >>> 1, yH = size >>> 1;
 
-                double cX = (y - xH) * scale + CENTER_X;
-                double cY = (x - yH) * scale + CENTER_Y;
+                double real = (y - half) * scale + CENTER_X;
+                double imag = (x - half) * scale + CENTER_Y;
 
-                double x2 = 0, y2 = 0;
-                double w = 0;
+                double x1 = real, y1 = imag;
+
+
+                double x_pow = 0, y_pow = 0;
 
                 int i = 0;
 
-                while (x2 + y2 <= 4 && i < MAX_ITERATIONS) {
-                    double x1 = x2 - y2 + cX;
-                    double y1 = w - x2 - y2 + cY;
+                while (x_pow + y_pow < 4 && i < MAX_ITERATIONS) {
+                    if (x_pow + y_pow >= 4) break;
 
-                    x2 = x1 * x1;
-                    y2 = y1 * y1;
+                    x_pow = x1 * x1; y_pow = y1 * y1;
 
-                    w = (x1 + y1) * (x1 + y1);
-
+                    double tmp = x_pow - y_pow + real;
+                    y1 = 2 * x1 * y1 + imag;
+                    x1 = tmp;
                     i++;
                 }
 
