@@ -8,7 +8,7 @@ public abstract class FrameMaker {
     static final int NCPU = ForkJoinPool.getCommonPoolParallelism();
 
     protected final int size;
-    protected float scale = 2F;
+    protected double scale = 2;
 
 
     public FrameMaker(int width, int height) {
@@ -23,10 +23,9 @@ public abstract class FrameMaker {
     public void render(int[] data) {
 
         int threshold = data.length / (NCPU << 1);
-
         new BulkTask(data, threshold, 0, 0, size, size).invoke();
 
-        scale *= 0.95F;
+        scale *= 0.95D;
     }
 
     private final class BulkTask extends RecursiveAction {

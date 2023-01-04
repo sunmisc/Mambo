@@ -10,6 +10,40 @@ public final class Test extends JPanel {
 
     private static final int WIDTH = 700, HEIGHT = 700;
 
+    private final UpdatableImageComponent component
+            = new UpdatableImageComponent();
+
+    private final Iterator<Image> itr;
+
+
+    private Test() {
+        super(new BorderLayout());
+        setOpaque(false);
+
+        final Dimension dimension = new Dimension(WIDTH, HEIGHT);
+
+        setPreferredSize(dimension);
+
+        add(component, BorderLayout.CENTER);
+
+        MandelbrotProcessor processor = new MandelbrotProcessor(WIDTH, HEIGHT);
+
+        itr = new ImageIterator(WIDTH, HEIGHT, processor);
+    }
+
+
+    void start() {
+        new Thread(() -> {
+
+            while (itr.hasNext()) {
+                try {
+                    component.setImage(itr.next());
+                } catch (InterruptedException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+    }
 
     public static void main(String[] args) {
 
@@ -24,39 +58,6 @@ public final class Test extends JPanel {
         frame.setVisible(true);
 
         test.start();
-    }
-
-    private final UpdatableImageComponent component
-            = new UpdatableImageComponent();
-
-    private final Iterator<Image> itr;
-
-
-    private Test() {
-        super(new BorderLayout());
-
-        final Dimension dimension = new Dimension(WIDTH, HEIGHT);
-
-        setPreferredSize(dimension);
-
-        add(component, BorderLayout.CENTER);
-
-        MandelbrotProcessor processor = new MandelbrotProcessor(WIDTH, HEIGHT);
-
-        itr = new ImageIterator(WIDTH, HEIGHT, processor);
-    }
-
-    void start() {
-        new Thread(() -> {
-
-            while (itr.hasNext()) {
-                try {
-                    component.setImage(itr.next());
-                } catch (InterruptedException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();
     }
 
 
