@@ -19,11 +19,9 @@ public final class MandelbrotProcessor extends FrameMaker {
                             int[] data) {
 
         for (int x = x_from; x < x_to; x++) {
+            double imag = (x - half) * scale + CENTER_Y;
             for (int y = y_from; y < y_to; y++) {
-
-
                 double real = (y - half) * scale + CENTER_X;
-                double imag = (x - half) * scale + CENTER_Y;
 
                 double x1 = real, y1 = imag;
 
