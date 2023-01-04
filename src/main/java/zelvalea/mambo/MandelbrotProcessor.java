@@ -31,7 +31,6 @@ public final class MandelbrotProcessor extends FrameMaker {
                 int i = 0;
 
                 while (x_pow + y_pow < 4 && i < MAX_ITERATIONS) {
-                    if (x_pow + y_pow >= 4) break;
 
                     x_pow = x1 * x1; y_pow = y1 * y1;
 
