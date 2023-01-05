@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 public final class Test extends JPanel {
 
-    private static final int WIDTH = 700, HEIGHT = 700;
+    private static final int WIDTH = 500, HEIGHT = 1000;
 
     private final UpdatableImageComponent component
             = new UpdatableImageComponent();

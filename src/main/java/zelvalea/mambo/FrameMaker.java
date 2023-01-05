@@ -7,12 +7,13 @@ public abstract class FrameMaker {
 
     static final int NCPU = ForkJoinPool.getCommonPoolParallelism();
 
-    protected final int size;
+    protected final int width, height;
     protected double scale = 2;
 
 
     public FrameMaker(int width, int height) {
-        this.size = (width + height) >> 1;
+        this.width = width;
+        this.height = height;
     }
 
     public abstract void chunkRender(int x_from, int x_to,
@@ -23,7 +24,7 @@ public abstract class FrameMaker {
     public void render(int[] data) {
 
         int threshold = data.length / (NCPU << 1);
-        new BulkTask(data, threshold, 0, 0, size, size).invoke();
+        new BulkTask(data, threshold, 0, 0, width, height).invoke();
 
         scale *= 0.965D;
     }
@@ -47,11 +48,11 @@ public abstract class FrameMaker {
 
         @Override
         public void compute() {
-            int t = threshold;
+            final int t = threshold;
             if ((x2 - x1) * (y2 - y1) <= t) {
                 chunkRender(
-                        x1, Math.min(x2, size),
-                        y1, Math.min(y2, size),
+                        x1, Math.min(x2, width),
+                        y1, Math.min(y2, height),
                         data
                 );
             } else {
