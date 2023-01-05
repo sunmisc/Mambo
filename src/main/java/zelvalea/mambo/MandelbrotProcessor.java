@@ -29,19 +29,19 @@ public final class MandelbrotProcessor extends FrameMaker {
 
                 double x_pow = 0, y_pow = 0;
 
-                int i = 0;
+                int i = MAX_ITERATIONS;
 
-                while (x_pow + y_pow < 4 && i < MAX_ITERATIONS) {
+                while (x_pow + y_pow < 4 && i >= 0) {
 
                     x_pow = x1 * x1; y_pow = y1 * y1;
 
                     double tmp = x_pow - y_pow + real;
                     y1 = 2 * x1 * y1 + imag;
                     x1 = tmp;
-                    i++;
+                    i--;
                 }
 
-                data[width * y + x] = (i << 21) | (i << 10) | (i << 1);
+                data[width * y + x] = (i << 21) | (i << 10) | (i << 2);
             }
         }
     }

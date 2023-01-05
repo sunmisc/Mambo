@@ -54,21 +54,21 @@ public abstract class FrameMaker {
 
         @Override
         public void compute() {
-            final int t = threshold;
-            if ((xhi - xlo) * (yhi - ylo) < t) {
+            final int th = threshold;
+            if ((xhi - xlo) * (yhi - ylo) < th) {
                 chunkRender(
-                        xlo, Math.min(xhi, width),
-                        ylo, Math.min(yhi, height),
+                        xlo, xhi,
+                        ylo, yhi,
                         data
                 );
             } else {
                 final int xMid = (xlo + xhi) >>> 1;
                 final int yMid = (ylo + yhi) >>> 1;
                 invokeAll(
-                        new BulkTask(data, t, xlo, ylo, xMid, yMid),
-                        new BulkTask(data, t, xlo, yMid, xMid, yhi),
-                        new BulkTask(data, t, xMid, ylo, xhi, yMid),
-                        new BulkTask(data, t, xMid, yMid, xhi, yhi)
+                        new BulkTask(data, th, xlo, ylo, xMid, yMid),
+                        new BulkTask(data, th, xlo, yMid, xMid, yhi),
+                        new BulkTask(data, th, xMid, ylo, xhi, yMid),
+                        new BulkTask(data, th, xMid, yMid, xhi, yhi)
                 );
             }
         }
