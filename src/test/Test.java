@@ -1,3 +1,4 @@
+import zelvalea.mambo.FrameMaker;
 import zelvalea.mambo.ImageIterator;
 import zelvalea.mambo.MandelbrotProcessor;
 
@@ -8,7 +9,7 @@ import java.util.Iterator;
 
 public final class Test extends JPanel {
 
-    private static final int WIDTH = 500, HEIGHT = 1000;
+    private static final int WIDTH = 700, HEIGHT = 700;
 
     private final UpdatableImageComponent component
             = new UpdatableImageComponent();
@@ -26,7 +27,7 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        MandelbrotProcessor processor = new MandelbrotProcessor(WIDTH, HEIGHT);
+        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT);
 
         itr = new ImageIterator(WIDTH, HEIGHT, processor);
     }

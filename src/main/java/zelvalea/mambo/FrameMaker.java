@@ -5,6 +5,8 @@ import java.util.concurrent.RecursiveAction;
 
 public abstract class FrameMaker {
 
+    static final int MIN_PARTITION = 32;
+
     static final int NCPU = ForkJoinPool.getCommonPoolParallelism();
 
     protected final int width, height;
@@ -17,13 +19,17 @@ public abstract class FrameMaker {
     }
 
     public abstract void chunkRender(int x_from, int x_to,
-                                     int y_from, int y_yo,
+                                     int y_from, int y_to,
                                      int[] data);
 
 
     public void render(int[] data) {
 
-        int threshold = data.length / (NCPU << 1);
+        int threshold = data.length;
+
+        threshold /= (NCPU << 1);
+        threshold = Math.max(threshold, MIN_PARTITION);
+
         new BulkTask(data, threshold, 0, 0, width, height).invoke();
 
         scale *= 0.965D;
@@ -32,37 +38,37 @@ public abstract class FrameMaker {
     private final class BulkTask extends RecursiveAction {
         private final int[] data;
         private final int threshold;
-        private final int x1, y1;
-        private final int x2, y2;
+        private final int xlo, ylo;
+        private final int xhi, yhi;
 
         BulkTask(int[] data, int threshold,
-                 int x1, int y1,
-                 int x2, int y2) {
+                 int xlo, int ylo,
+                 int xhi, int yhi) {
             this.data = data;
             this.threshold = threshold;
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
+            this.xlo = xlo;
+            this.ylo = ylo;
+            this.xhi = xhi;
+            this.yhi = yhi;
         }
 
         @Override
         public void compute() {
             final int t = threshold;
-            if ((x2 - x1) * (y2 - y1) <= t) {
+            if ((xhi - xlo) * (yhi - ylo) < t) {
                 chunkRender(
-                        x1, Math.min(x2, width),
-                        y1, Math.min(y2, height),
+                        xlo, Math.min(xhi, width),
+                        ylo, Math.min(yhi, height),
                         data
                 );
             } else {
-                final int xMid = (x1 + x2) >>> 1;
-                final int yMid = (y1 + y2) >>> 1;
+                final int xMid = (xlo + xhi) >>> 1;
+                final int yMid = (ylo + yhi) >>> 1;
                 invokeAll(
-                        new BulkTask(data, t, x1, y1, xMid, yMid),
-                        new BulkTask(data, t, x1, yMid, xMid, y2),
-                        new BulkTask(data, t, xMid, y1, x2, yMid),
-                        new BulkTask(data, t, xMid, yMid, x2, y2)
+                        new BulkTask(data, t, xlo, ylo, xMid, yMid),
+                        new BulkTask(data, t, xlo, yMid, xMid, yhi),
+                        new BulkTask(data, t, xMid, ylo, xhi, yMid),
+                        new BulkTask(data, t, xMid, yMid, xhi, yhi)
                 );
             }
         }

@@ -14,6 +14,7 @@ public final class MandelbrotProcessor extends FrameMaker {
         this.half_height = height >>> 1;
     }
 
+
     @Override
     public void chunkRender(int x_from, int x_to,
                             int y_from, int y_to,
@@ -40,7 +41,7 @@ public final class MandelbrotProcessor extends FrameMaker {
                     i++;
                 }
 
-                data[width * y + x] = (i << 21) + (i << 10) + i*2;
+                data[width * y + x] = (i << 21) | (i << 10) | (i << 1);
             }
         }
     }
