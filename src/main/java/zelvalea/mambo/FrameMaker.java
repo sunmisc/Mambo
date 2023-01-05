@@ -12,10 +12,20 @@ public abstract class FrameMaker {
     protected final int width, height;
     protected double scale = 2;
 
+    private final int threshold;
+
 
     public FrameMaker(int width, int height) {
         this.width = width;
         this.height = height;
+
+        int threshold = width * height;
+
+        threshold /= (NCPU << 1);
+        threshold = Math.max(threshold, MIN_PARTITION);
+
+        this.threshold = threshold;
+
     }
 
     public abstract void chunkRender(int x_from, int x_to,
@@ -25,27 +35,20 @@ public abstract class FrameMaker {
 
     public void render(int[] data) {
 
-        int threshold = data.length;
-
-        threshold /= (NCPU << 1);
-        threshold = Math.max(threshold, MIN_PARTITION);
-
-        new BulkTask(data, threshold, 0, 0, width, height).invoke();
+        new BulkTask(data, 0, 0, width, height).invoke();
 
         scale *= 0.965D;
     }
 
     private final class BulkTask extends RecursiveAction {
         private final int[] data;
-        private final int threshold;
         private final int xlo, ylo;
         private final int xhi, yhi;
 
-        BulkTask(int[] data, int threshold,
+        BulkTask(int[] data,
                  int xlo, int ylo,
                  int xhi, int yhi) {
             this.data = data;
-            this.threshold = threshold;
             this.xlo = xlo;
             this.ylo = ylo;
             this.xhi = xhi;
@@ -54,8 +57,7 @@ public abstract class FrameMaker {
 
         @Override
         public void compute() {
-            final int th = threshold;
-            if ((xhi - xlo) * (yhi - ylo) < th) {
+            if ((xhi - xlo) * (yhi - ylo) < threshold) {
                 chunkRender(
                         xlo, xhi,
                         ylo, yhi,
@@ -65,10 +67,10 @@ public abstract class FrameMaker {
                 final int xMid = (xlo + xhi) >>> 1;
                 final int yMid = (ylo + yhi) >>> 1;
                 invokeAll(
-                        new BulkTask(data, th, xlo, ylo, xMid, yMid),
-                        new BulkTask(data, th, xlo, yMid, xMid, yhi),
-                        new BulkTask(data, th, xMid, ylo, xhi, yMid),
-                        new BulkTask(data, th, xMid, yMid, xhi, yhi)
+                        new BulkTask(data, xlo, ylo, xMid, yMid),
+                        new BulkTask(data, xlo, yMid, xMid, yhi),
+                        new BulkTask(data, xMid, ylo, xhi, yMid),
+                        new BulkTask(data, xMid, yMid, xhi, yhi)
                 );
             }
         }
