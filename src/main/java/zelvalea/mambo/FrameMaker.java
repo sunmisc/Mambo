@@ -1,78 +1,83 @@
 package zelvalea.mambo;
 
+import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveAction;
 
 public abstract class FrameMaker {
 
-    static final int MIN_PARTITION = 32;
+    static final int MIN_PARTITION = 1 << 12;
 
     static final int NCPU = ForkJoinPool.getCommonPoolParallelism();
 
     protected final int width, height;
-    protected double scale = 2;
 
-    private final int threshold;
 
 
     public FrameMaker(int width, int height) {
         this.width = width;
         this.height = height;
-
-        int threshold = width * height;
-
-        threshold /= (NCPU << 1);
-        threshold = Math.max(threshold, MIN_PARTITION);
-
-        this.threshold = threshold;
-
     }
 
-    public abstract void chunkRender(int x_from, int x_to,
-                                     int y_from, int y_to,
-                                     int[] data);
+    public abstract void renderAt(int index, int[] data);
 
 
     public void render(int[] data) {
 
-        new BulkTask(data, 0, 0, width, height).invoke();
+        int n = data.length;
+        int threshold = Math.max(n / (NCPU << 1), Math.min(n, MIN_PARTITION));
 
-        scale *= 0.965D;
+        new BulkTask(null, this,
+                data, threshold,
+                0, n
+        ).invoke();
     }
 
-    private final class BulkTask extends RecursiveAction {
-        private final int[] data;
-        private final int xlo, ylo;
-        private final int xhi, yhi;
+    static final class BulkTask extends CountedCompleter<Void> {
 
-        BulkTask(int[] data,
-                 int xlo, int ylo,
-                 int xhi, int yhi) {
+        final int[] data;
+
+        final FrameMaker maker;
+        final int threshold;
+
+        final int hi, lo;
+
+        public BulkTask(BulkTask parent,
+                        FrameMaker maker,
+                        int[] data, int threshold,
+                        int lo, int hi) {
+            super(parent);
+            this.maker = maker;
             this.data = data;
-            this.xlo = xlo;
-            this.ylo = ylo;
-            this.xhi = xhi;
-            this.yhi = yhi;
+            this.threshold = threshold;
+            this.lo = lo; this.hi = hi;
         }
+
 
         @Override
         public void compute() {
-            if ((xhi - xlo) * (yhi - ylo) < threshold) {
-                chunkRender(
-                        xlo, xhi,
-                        ylo, yhi,
-                        data
-                );
+
+            final int size = hi - lo;
+
+            if (size < threshold) {
+                for (int i = lo; i < hi; ++i) {
+                    maker.renderAt(i, data);
+                }
             } else {
-                final int xMid = (xlo + xhi) >>> 1;
-                final int yMid = (ylo + yhi) >>> 1;
-                invokeAll(
-                        new BulkTask(data, xlo, ylo, xMid, yMid),
-                        new BulkTask(data, xlo, yMid, xMid, yhi),
-                        new BulkTask(data, xMid, ylo, xhi, yMid),
-                        new BulkTask(data, xMid, yMid, xhi, yhi)
-                );
+                setPendingCount(2);
+                int mid = (lo + hi) >>> 1;
+                new BulkTask(this, maker,
+                        data, threshold,
+                        mid, hi
+                ).fork();
+                new BulkTask(this, maker,
+                        data, threshold,
+                        lo, mid
+                ).fork();
             }
+
+            propagateCompletion();
+
         }
     }
+
 }

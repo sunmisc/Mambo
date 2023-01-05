@@ -1,12 +1,20 @@
 package zelvalea.mambo;
 
 public final class MandelbrotProcessor extends FrameMaker {
-
+    private static final double MANDELBROT_FRACTAL_LENGTH = 2.25;
     private static final int MAX_ITERATIONS = 500;
-    private static final double CENTER_X = -0.77568377;
-    private static final double CENTER_Y  = 0.13646737;
+    private static final double CENTER_X = -0.10109636384562;
+    private static final double CENTER_Y  = 0.95628651080914;
+
+
+    /*private static final double CENTER_X = -0.77568377;
+    private static final double CENTER_Y  = 0.13646737;*/
 
     private final int half_width, half_height;
+
+    private int scale = 1;
+
+    private static final double CONS = Math.pow(2, -62);
 
     public MandelbrotProcessor(int width, int height) {
         super(width, height);
@@ -14,35 +22,42 @@ public final class MandelbrotProcessor extends FrameMaker {
         this.half_height = height >>> 1;
     }
 
+    @Override
+    public void render(int[] data) {
+
+        super.render(data);
+
+        this.scale += 2;
+    }
 
     @Override
-    public void chunkRender(int x_from, int x_to,
-                            int y_from, int y_to,
-                            int[] data) {
-        for (int x = x_from; x < x_to; x++) {
-            double imag = (x - half_width) * scale + CENTER_Y;
-            for (int y = y_from; y < y_to; y++) {
-                double real = (y - half_height) * scale + CENTER_X;
+    public void renderAt(int i, int[] data) {
 
-                double x1 = real, y1 = imag;
+        final double zoom = scale * CONS;
+
+        final int x = i / height, y = i % width;
+
+        double d1 = y - half_width, d2 = x - half_height;
+
+        // a * b + c
+        double real = Math.fma(zoom, d1, CENTER_X);
+        double imag = Math.fma(zoom, d2, CENTER_Y);
+
+        double x1 = real, y1 = imag;
 
 
-                double x_pow = 0, y_pow = 0;
+        double x_pow = 0, y_pow = 0;
 
-                int i = MAX_ITERATIONS;
+        int itr;
 
-                while (x_pow + y_pow < 4 && i >= 0) {
+        for (itr = MAX_ITERATIONS; x_pow + y_pow <= 4 && itr >= 0; --itr) {
+            x_pow = x1 * x1;
+            y_pow = y1 * y1;
 
-                    x_pow = x1 * x1; y_pow = y1 * y1;
-
-                    double tmp = x_pow - y_pow + real;
-                    y1 = 2 * x1 * y1 + imag;
-                    x1 = tmp;
-                    i--;
-                }
-
-                data[width * y + x] = (i << 21) | (i << 10) | (i << 2);
-            }
+            y1 = 2 * x1 * y1 + imag;
+            x1 = x_pow - y_pow + real;
         }
+
+        data[i] = (itr << 21) | (itr << 10) | (itr << 2);
     }
 }
