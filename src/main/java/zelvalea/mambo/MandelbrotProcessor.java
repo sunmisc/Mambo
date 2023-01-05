@@ -12,9 +12,7 @@ public final class MandelbrotProcessor extends FrameMaker {
 
     private final int half_width, half_height;
 
-    private int scale = 1;
-
-    private static final double CONS = Math.pow(2, -62);
+    private double scale = 2;
 
     public MandelbrotProcessor(int width, int height) {
         super(width, height);
@@ -27,13 +25,13 @@ public final class MandelbrotProcessor extends FrameMaker {
 
         super.render(data);
 
-        this.scale += 2;
+        this.scale *= 0.96;
     }
 
     @Override
     public void renderAt(int i, int[] data) {
 
-        final double zoom = scale * CONS;
+        final double zoom = scale;
 
         final int x = i / height, y = i % width;
 
