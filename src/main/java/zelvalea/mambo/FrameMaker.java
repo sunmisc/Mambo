@@ -18,7 +18,7 @@ public abstract class FrameMaker {
         this.height = height;
     }
 
-    public abstract void renderAt(int index, int[] data);
+    public abstract int renderAt(int x, int y);
 
 
     public void render(int[] data) {
@@ -30,6 +30,16 @@ public abstract class FrameMaker {
                 data, threshold,
                 0, n
         ).invoke();
+    }
+
+    private void renderChunk(int lo, int hi, int[] data) {
+
+        for (int i = lo; i < hi; ++i) {
+            final int x = i / height, y = i % width;
+
+            data[i] = renderAt(x, y);
+        }
+
     }
 
     static final class BulkTask extends CountedCompleter<Void> {
@@ -59,9 +69,7 @@ public abstract class FrameMaker {
             final int size = hi - lo;
 
             if (size < threshold) {
-                for (int i = lo; i < hi; ++i) {
-                    maker.renderAt(i, data);
-                }
+                maker.renderChunk(lo, hi, data);
             } else {
                 setPendingCount(2);
                 int mid = (lo + hi) >>> 1;

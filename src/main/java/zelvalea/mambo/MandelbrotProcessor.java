@@ -29,11 +29,9 @@ public final class MandelbrotProcessor extends FrameMaker {
     }
 
     @Override
-    public void renderAt(int i, int[] data) {
+    public int renderAt(int x, int y) {
 
         final double zoom = scale;
-
-        final int x = i / height, y = i % width;
 
         double d1 = y - half_width, d2 = x - half_height;
 
@@ -56,6 +54,6 @@ public final class MandelbrotProcessor extends FrameMaker {
             x1 = x_pow - y_pow + real;
         }
 
-        data[i] = (itr << 21) | (itr << 10) | (itr << 2);
+        return (itr << 21) | (itr << 10) | (itr << 2);
     }
 }
