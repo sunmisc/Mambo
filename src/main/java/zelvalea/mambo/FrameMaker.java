@@ -23,8 +23,16 @@ public abstract class FrameMaker {
 
     public void render(int[] data) {
 
+
+        /* Arrays.parallelSetAll(data, i -> {
+            final int x = i / height, y = i % width;
+
+            return renderAt(x, y);
+        }); */
+
+
         int n = data.length;
-        int threshold = Math.max(n / (NCPU << 1), Math.min(n, MIN_PARTITION));
+        int threshold = Math.max(n / (NCPU << 3), Math.min(n, MIN_PARTITION));
 
         new BulkTask(null, this,
                 data, threshold,

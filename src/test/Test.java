@@ -1,11 +1,14 @@
 import zelvalea.mambo.FrameMaker;
 import zelvalea.mambo.ImageIterator;
-import zelvalea.mambo.MandelbrotProcessor;
+import zelvalea.mambo.RoflanBoat;
 
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class Test extends JPanel {
 
@@ -15,6 +18,9 @@ public final class Test extends JPanel {
             = new UpdatableImageComponent();
 
     private final Iterator<Image> itr;
+
+    private final ScheduledExecutorService scheduler
+            = Executors.newScheduledThreadPool(1);
 
 
     private Test() {
@@ -27,23 +33,21 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT);
+        FrameMaker processor = new RoflanBoat(WIDTH, HEIGHT);
 
         itr = new ImageIterator(WIDTH, HEIGHT, processor);
     }
 
 
     void start() {
-        new Thread(() -> {
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                component.setImage(itr.next());
 
-            while (itr.hasNext()) {
-                try {
-                    component.setImage(itr.next());
-                } catch (InterruptedException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+            } catch (InterruptedException | InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
-        }).start();
+        }, 0, 5, TimeUnit.MILLISECONDS);
     }
 
     public static void main(String[] args) {
