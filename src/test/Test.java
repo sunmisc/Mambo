@@ -1,14 +1,11 @@
-import zelvalea.mambo.FrameMaker;
-import zelvalea.mambo.ImageIterator;
-import zelvalea.mambo.RoflanBoat;
+import sunmisc.mambo.FrameMaker;
+import sunmisc.mambo.ImageIterator;
+import sunmisc.mambo.MandelbrotProcessor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public final class Test extends JPanel {
 
@@ -18,10 +15,6 @@ public final class Test extends JPanel {
             = new UpdatableImageComponent();
 
     private final Iterator<Image> itr;
-
-    private final ScheduledExecutorService scheduler
-            = Executors.newScheduledThreadPool(1);
-
 
     private Test() {
         super(new BorderLayout());
@@ -33,21 +26,20 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        FrameMaker processor = new RoflanBoat(WIDTH, HEIGHT);
+        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT);
 
         itr = new ImageIterator(WIDTH, HEIGHT, processor);
     }
 
 
-    void start() {
-        scheduler.scheduleAtFixedRate(() -> {
+    public void start() {
+        while (true) {
             try {
-                component.setImage(itr.next());
-
+                component.updateImage(itr.next());
             } catch (InterruptedException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                Thread.interrupted();
             }
-        }, 0, 5, TimeUnit.MILLISECONDS);
+        }
     }
 
     public static void main(String[] args) {
@@ -81,11 +73,10 @@ public final class Test extends JPanel {
             );
         }
 
-        public void setImage(Image im) throws InterruptedException, InvocationTargetException {
-            SwingUtilities.invokeLater(() -> {
-                image = im;
-                repaint();
-            });
+        public void updateImage(Image im)
+                throws InterruptedException, InvocationTargetException {
+            image = im;
+            repaint();
         }
     }
 }

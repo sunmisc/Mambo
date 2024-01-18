@@ -1,8 +1,7 @@
-package zelvalea.mambo;
+package sunmisc.mambo;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.util.Iterator;
 
 public class ImageIterator implements Iterator<Image> {
@@ -10,7 +9,7 @@ public class ImageIterator implements Iterator<Image> {
     private final FrameMaker maker;
 
     public ImageIterator(int width, int height, FrameMaker maker) {
-        buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         this.maker = maker;
     }
 
@@ -18,8 +17,10 @@ public class ImageIterator implements Iterator<Image> {
 
     @Override
     public Image next() {
-        int[] data = ((DataBufferInt) buffer.getRaster().getDataBuffer()).getData();
-        maker.render(data);
+        int[] data = maker.render();
+        int w = buffer.getWidth(),
+            h = buffer.getHeight();
+        buffer.setRGB(0, 0, w, h, data, 0, w);
         return buffer;
     }
 }

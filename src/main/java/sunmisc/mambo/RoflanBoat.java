@@ -1,17 +1,23 @@
-package zelvalea.mambo;
+package sunmisc.mambo;
+
+import sunmisc.mambo.palette.CachedPalette;
+import sunmisc.mambo.palette.ColorProperty;
+import sunmisc.mambo.palette.Palette;
+import sunmisc.mambo.palette.SimplePalette;
 
 import java.util.Map;
 
 import static java.lang.Math.*;
-import static java.lang.Math.fma;
 import static java.util.Map.entry;
 
 public class RoflanBoat extends FrameMaker {
     private static final int MAX_ITERATIONS = 500;
-    private static final Palette PALETTE = new Palette(
-            0, 255,
-            Math.toRadians(270), Math.toRadians(30), Math.toRadians(60),
-            4,4,4
+    private static final Palette PALETTE = new CachedPalette(
+            new SimplePalette(
+                    new ColorProperty(Math.toRadians(270), 4),
+                    new ColorProperty(Math.toRadians(30), 4),
+                    new ColorProperty(Math.toRadians(60), 4)
+            )
     );
     private static final int TARGET_INDEX_PONT = 0;
     @SuppressWarnings("unchecked")
@@ -40,11 +46,9 @@ public class RoflanBoat extends FrameMaker {
     }
 
     @Override
-    public void render(int[] data) {
-
-        super.render(data);
-
-        scale *= 0.995;
+    public int[] render() {
+        scale *= 0.97;
+        return super.render();
 
     }
     @Override
@@ -73,6 +77,6 @@ public class RoflanBoat extends FrameMaker {
             zx = x_pow - y_pow + real;
         }
 
-        return PALETTE.getColor(itr).getRGB();
+        return PALETTE.color(itr).getRGB();
     }
 }
