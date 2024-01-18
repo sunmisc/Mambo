@@ -1,7 +1,9 @@
 package sunmisc.mambo;
 
+import java.util.Arrays;
 import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.IntStream;
 
 public abstract class FrameMaker {
 
@@ -61,20 +63,20 @@ public abstract class FrameMaker {
 
         @Override
         public void compute() {
-
             final int size = hi - lo;
 
-            if (size < threshold)
+            int th = threshold;
+            if (size < th)
                 maker.renderChunk(lo, hi, data);
             else {
                 setPendingCount(2);
                 int mid = (lo + hi) >>> 1;
                 new BulkTask(this, maker,
-                        data, threshold,
+                        data, th,
                         mid, hi
                 ).fork();
                 new BulkTask(this, maker,
-                        data, threshold,
+                        data, th,
                         lo, mid
                 ).fork();
             }

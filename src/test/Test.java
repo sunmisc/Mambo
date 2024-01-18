@@ -15,6 +15,7 @@ public final class Test extends JPanel {
             = new UpdatableImageComponent();
 
     private final Iterator<Image> itr;
+    private double scale = 0.05;
 
     private Test() {
         super(new BorderLayout());
@@ -26,7 +27,7 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT);
+        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT, () -> scale);
 
         itr = new ImageIterator(WIDTH, HEIGHT, processor);
     }
@@ -36,6 +37,7 @@ public final class Test extends JPanel {
         while (true) {
             try {
                 component.updateImage(itr.next());
+                scale *= 0.97;
             } catch (InterruptedException | InvocationTargetException e) {
                 Thread.interrupted();
             }

@@ -1,6 +1,6 @@
 package sunmisc.mambo.complex;
 
-public class DivisionComplex implements Complex {
+public final class DivisionComplex implements Complex {
 
     private final Complex a,b;
 

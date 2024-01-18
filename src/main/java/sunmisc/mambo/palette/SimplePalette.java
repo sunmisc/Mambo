@@ -18,6 +18,7 @@ public class SimplePalette implements Palette {
         return new Color(
                 red.applyAsInt(i),
                 green.applyAsInt(i),
-                blue.applyAsInt(i));
+                blue.applyAsInt(i)
+        );
     }
 }

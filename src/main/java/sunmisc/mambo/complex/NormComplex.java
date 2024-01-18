@@ -1,10 +1,10 @@
 package sunmisc.mambo.complex;
 
-public final class ModuleSqrComplex extends Number {
+public final class NormComplex extends Number {
 
     private final Complex origin;
 
-    public ModuleSqrComplex(Complex origin) {
+    public NormComplex(Complex origin) {
         this.origin = origin;
     }
 

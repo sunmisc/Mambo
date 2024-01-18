@@ -15,11 +15,6 @@ public class ComplexEnvelope implements Complex {
     }
 
     @Override
-    public Complex clone() {
-        return this;
-    }
-
-    @Override
     public Number real() {
         return real;
     }

@@ -18,9 +18,9 @@ public class ColorProperty implements IntUnaryOperator {
 
         int range = totalRange / step;
 
-        double cosR = Math.cos(i * Math.TAU / range + start);
+        double cos = Math.cos(i * Math.TAU / range + start);
 
-        return (int) ((cosR * totalRange) + totalRange) / 2;
+        return (int) ((cos * totalRange) + totalRange) / 2;
     }
 
 }
