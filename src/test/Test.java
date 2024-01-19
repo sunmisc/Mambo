@@ -1,6 +1,6 @@
 import sunmisc.mambo.FrameMaker;
 import sunmisc.mambo.ImageIterator;
-import sunmisc.mambo.MandelbrotProcessor;
+import sunmisc.mambo.MandelbrotMaker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,9 +27,9 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        FrameMaker processor = new MandelbrotProcessor(WIDTH, HEIGHT, () -> scale);
+        FrameMaker processor = new MandelbrotMaker(WIDTH, HEIGHT, () -> scale);
 
-        itr = new ImageIterator(WIDTH, HEIGHT, processor);
+        itr = new ImageIterator(processor);
     }
 
 

@@ -5,13 +5,14 @@ import sunmisc.mambo.palette.CachedPalette;
 import sunmisc.mambo.palette.ColorProperty;
 import sunmisc.mambo.palette.Palette;
 import sunmisc.mambo.palette.SimplePalette;
+
 import java.util.function.DoubleSupplier;
 
 import static java.lang.Math.fma;
 
-public final class MandelbrotProcessor extends FrameMaker {
+public final class MandelbrotMaker extends FrameMaker {
 
-    private static final int MAX_ITERATIONS = 100;
+    private static final int MAX_ITERATIONS = 400;
     private static final Palette PALETTE =
             new CachedPalette(
                     new SimplePalette(
@@ -23,11 +24,11 @@ public final class MandelbrotProcessor extends FrameMaker {
     private final int half_width, half_height;
     private final DoubleSupplier scale;
 
-    public MandelbrotProcessor(int width, int height) {
+    public MandelbrotMaker(int width, int height) {
         this(width, height, () -> 0.01);
     }
 
-    public MandelbrotProcessor(int width, int height, DoubleSupplier scale) {
+    public MandelbrotMaker(int width, int height, DoubleSupplier scale) {
         super(width, height);
         this.half_width  =  width >>> 1;
         this.half_height = height >>> 1;
@@ -39,11 +40,11 @@ public final class MandelbrotProcessor extends FrameMaker {
     public int renderAt(int x, int y) {
         final double zoom = scale.getAsDouble();
 
-        double d1 = y - half_width, d2 = x - half_height;
+        double d1 = x - half_width, d2 = y - half_height;
 
         Complex start = new ComplexEnvelope(
-                fma(zoom, d1, CENTER_X),
-                fma(zoom, d2, CENTER_Y)
+                fma(zoom, d1, point.x()),
+                fma(zoom, d2, point.y())
         );
         Complex curr = start;
         int itr = 0;
@@ -60,7 +61,7 @@ public final class MandelbrotProcessor extends FrameMaker {
         return PALETTE.color(itr).getRGB();
     }
 
-    private static final int TARGET_INDEX_POINT = 5;
+    private static final int TARGET_INDEX_POINT = 1;
 
     private static final Point[] points = new Point[]{
             new Point(-1.1900443, 0.3043895),
@@ -72,13 +73,7 @@ public final class MandelbrotProcessor extends FrameMaker {
             new Point(-1.256640565451168862869, -0.382386428889165027247)
     };
 
-    private static final double CENTER_X, CENTER_Y;
-    static {
-        Point entry = points[TARGET_INDEX_POINT];
-
-        CENTER_X = entry.x();
-        CENTER_Y = entry.y();
-    }
+    private static final Point point = points[TARGET_INDEX_POINT];
 
     private record Point(double x, double y) { }
 

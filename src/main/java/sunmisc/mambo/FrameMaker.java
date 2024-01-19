@@ -1,5 +1,7 @@
 package sunmisc.mambo;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.CountedCompleter;
 import java.util.concurrent.ForkJoinPool;
 
@@ -9,55 +11,54 @@ public abstract class FrameMaker {
 
     static final int NCPU = ForkJoinPool.getCommonPoolParallelism();
 
-    private final int width, height;
-    private final int[] data;
+    private final BufferedImage image;
 
     public FrameMaker(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.data = new int[width * height];
+        this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
 
     public abstract int renderAt(int x, int y);
 
 
-    public int[] render() {
-        int n = data.length;
+    public Image render() {
+        BufferedImage im = image;
+        int n = im.getWidth() * im.getHeight();
         int threshold = Math.max(n / (NCPU << 3), Math.min(n, MIN_PARTITION));
-        return new BulkTask(null, this,
-                data, threshold,
+        new BulkTask(null, this,
+                threshold,
                 0, n
         ).invoke();
+        return im;
     }
 
-    private void renderChunk(int lo, int hi, int[] data) {
+    private void renderChunk(int lo, int hi) {
 
+        BufferedImage im = image;
+        int w = im.getWidth(), h = im.getHeight();
         for (int i = lo; i < hi; ++i) {
-            final int x = i / height, y = i % width;
+            final int x = i / w, y = i % h;
 
-            data[i] = renderAt(x, y);
+            int pixel = renderAt(x, y);
+            im.setRGB(x,y, pixel);
         }
 
     }
 
-    private static final class BulkTask extends CountedCompleter<int[]> {
+    private static final class BulkTask extends CountedCompleter<Void> {
 
-        private final int[] data;
         private final FrameMaker maker;
         private final int threshold;
-
         private final int hi, lo;
 
         BulkTask(BulkTask parent, FrameMaker maker,
-                 int[] data, int threshold,
+                 int threshold,
                  int lo, int hi) {
             super(parent);
             this.maker = maker;
-            this.data = data;
             this.threshold = threshold;
-            this.lo = lo; this.hi = hi;
+            this.lo = lo;
+            this.hi = hi;
         }
-
 
         @Override
         public void compute() {
@@ -65,26 +66,14 @@ public abstract class FrameMaker {
             final int th = threshold;
 
             if (size < th)
-                maker.renderChunk(lo, hi, data);
+                maker.renderChunk(lo, hi);
             else {
                 setPendingCount(2);
                 int mid = (lo + hi) >>> 1;
-                new BulkTask(this, maker,
-                        data, th,
-                        mid, hi
-                ).fork();
-                new BulkTask(this, maker,
-                        data, th,
-                        lo, mid
-                ).fork();
+                new BulkTask(this, maker, th, mid, hi).fork();
+                new BulkTask(this, maker, th, lo, mid).fork();
             }
             propagateCompletion();
-        }
-
-
-        @Override
-        public int[] getRawResult() {
-            return data;
         }
     }
 
