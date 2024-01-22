@@ -4,12 +4,14 @@ import sunmisc.mambo.MandelbrotMaker;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 public final class Test extends JPanel {
 
-    private static final int WIDTH = 700, HEIGHT = 700;
+    private static final int WIDTH = 1000, HEIGHT = 1000;
 
     private final UpdatableImageComponent component
             = new UpdatableImageComponent();
@@ -27,7 +29,8 @@ public final class Test extends JPanel {
 
         add(component, BorderLayout.CENTER);
 
-        FrameMaker processor = new MandelbrotMaker(WIDTH, HEIGHT, () -> scale);
+        FrameMaker processor = new MandelbrotMaker(WIDTH, HEIGHT,
+                () -> (double) SCALE.getOpaque(Test.this));
 
         itr = new ImageIterator(processor);
     }
@@ -37,7 +40,7 @@ public final class Test extends JPanel {
         while (true) {
             try {
                 component.updateImage(itr.next());
-                scale *= 0.97;
+                SCALE.setOpaque(this, scale * 0.97);
             } catch (InterruptedException | InvocationTargetException e) {
                 Thread.interrupted();
             }
@@ -59,6 +62,16 @@ public final class Test extends JPanel {
         test.start();
     }
 
+    private static final VarHandle SCALE;
+
+    static {
+        try {
+            MethodHandles.Lookup l = MethodHandles.lookup();
+            SCALE = l.findVarHandle(Test.class, "scale", double.class);
+        } catch (ReflectiveOperationException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private static class UpdatableImageComponent extends JComponent {
         private Image image;

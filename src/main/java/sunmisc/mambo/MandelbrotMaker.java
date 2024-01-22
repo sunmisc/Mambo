@@ -6,41 +6,40 @@ import sunmisc.mambo.palette.ColorProperty;
 import sunmisc.mambo.palette.Palette;
 import sunmisc.mambo.palette.SimplePalette;
 
-import java.util.function.DoubleSupplier;
+import java.awt.*;
+import java.util.function.Supplier;
 
 import static java.lang.Math.fma;
 
 public final class MandelbrotMaker extends FrameMaker {
 
-    private static final int MAX_ITERATIONS = 400;
+    private static final int MAX_ITERATIONS = 100;
     private static final Palette PALETTE =
             new CachedPalette(
                     new SimplePalette(
-                            new ColorProperty(Math.toRadians(30), 4),
-                            new ColorProperty(Math.toRadians(60), 4),
-                            new ColorProperty(Math.toRadians(360), 4)
+                            new ColorProperty(Math.toRadians(277), 4),
+                            new ColorProperty(Math.toRadians(13), 4),
+                            new ColorProperty(Math.toRadians(260), 4)
                     )
             );
-    private final int half_width, half_height;
-    private final DoubleSupplier scale;
+    private final int hWidth, hHeight;
+    private final Supplier<Number> scale;
 
     public MandelbrotMaker(int width, int height) {
         this(width, height, () -> 0.01);
     }
 
-    public MandelbrotMaker(int width, int height, DoubleSupplier scale) {
+    public MandelbrotMaker(int width, int height, Supplier<Number> scale) {
         super(width, height);
-        this.half_width  =  width >>> 1;
-        this.half_height = height >>> 1;
+        this.hWidth  = width >>> 1;
+        this.hHeight = height >>> 1;
         this.scale = scale;
     }
-
-
     @Override
-    public int renderAt(int x, int y) {
-        final double zoom = scale.getAsDouble();
+    public Color renderAt(int x, int y) {
+        final double zoom = scale.get().doubleValue();
 
-        double d1 = x - half_width, d2 = y - half_height;
+        int d1 = x - hWidth, d2 = y - hHeight;
 
         Complex start = new ComplexEnvelope(
                 fma(zoom, d1, point.x()),
@@ -49,16 +48,16 @@ public final class MandelbrotMaker extends FrameMaker {
         Complex curr = start;
         int itr = 0;
         for (; itr < MAX_ITERATIONS; ++itr) {
-            if (new NormComplex(curr).floatValue() >= 4F)
+            if (new NormComplex(curr).intValue() >= 4)
                 break;
             curr = new ComplexEnvelope(
                     new AddComplex(
-                            new MultipleComplex(curr, curr),
+                            new PowComplex(curr),
                             start
                     )
             );
         }
-        return PALETTE.color(itr).getRGB();
+        return PALETTE.color(itr);
     }
 
     private static final int TARGET_INDEX_POINT = 1;
