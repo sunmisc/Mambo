@@ -17,23 +17,34 @@ public final class MandelbrotMaker extends FrameMaker {
     private static final Palette PALETTE =
             new CachedPalette(
                     new SimplePalette(
-                            new ColorProperty(Math.toRadians(277), 4),
-                            new ColorProperty(Math.toRadians(13), 4),
+                            new ColorProperty(Math.toRadians(270), 4),
+                            new ColorProperty(Math.toRadians(8), 4),
                             new ColorProperty(Math.toRadians(260), 4)
                     )
             );
     private final int hWidth, hHeight;
     private final Supplier<Number> scale;
 
+    private final Point point;
+
     public MandelbrotMaker(int width, int height) {
         this(width, height, () -> 0.01);
     }
 
+    public MandelbrotMaker(int width, int height, Point point) {
+        this(width, height, () -> 0.01, point);
+    }
     public MandelbrotMaker(int width, int height, Supplier<Number> scale) {
+        this(width, height, scale, DEFAULT_POINT);
+    }
+
+    public MandelbrotMaker(int width, int height,
+                           Supplier<Number> scale, Point point) {
         super(width, height);
         this.hWidth  = width >>> 1;
         this.hHeight = height >>> 1;
         this.scale = scale;
+        this.point = point;
     }
     @Override
     public Color renderAt(int x, int y) {
@@ -42,8 +53,8 @@ public final class MandelbrotMaker extends FrameMaker {
         int d1 = x - hWidth, d2 = y - hHeight;
 
         Complex start = new ComplexEnvelope(
-                fma(zoom, d1, point.x()),
-                fma(zoom, d2, point.y())
+                fma(zoom, d1, point.x().doubleValue()),
+                fma(zoom, d2, point.y().doubleValue())
         );
         Complex curr = start;
         int itr = 0;
@@ -63,17 +74,27 @@ public final class MandelbrotMaker extends FrameMaker {
     private static final int TARGET_INDEX_POINT = 1;
 
     private static final Point[] points = new Point[]{
-            new Point(-1.1900443, 0.3043895),
-            new Point(-0.10109636384562, 0.95628651080914),
-            new Point(-0.77568377, 0.13646737),
-            new Point(-0.7778078101931, 0.1316451080032),
-            new Point(-0.743643887037151, 0.13182590420533),
-            new Point(-1.2573680284665283, 0.3787308310286249),
-            new Point(-1.256640565451168862869, -0.382386428889165027247)
+            new PointA(-1.1900443, 0.3043895),
+            new PointA(-0.10109636384562, 0.95628651080914),
+            new PointA(-0.77568377, 0.13646737),
+            new PointA(-0.7778078101931, 0.1316451080032),
+            new PointA(-0.743643887037151, 0.13182590420533),
+            new PointA(-1.2573680284665283, 0.3787308310286249),
+            new PointA(-1.256640565451168862869, -0.382386428889165027247)
     };
 
-    private static final Point point = points[TARGET_INDEX_POINT];
+    private static final Point DEFAULT_POINT = points[TARGET_INDEX_POINT];
 
-    private record Point(double x, double y) { }
+    private record PointA(double x1, double y1) implements Point {
+        @Override
+        public Number x() {
+            return x1;
+        }
+
+        @Override
+        public Number y() {
+            return y1;
+        }
+    }
 
 }
