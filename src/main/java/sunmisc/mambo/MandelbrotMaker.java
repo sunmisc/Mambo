@@ -1,6 +1,8 @@
 package sunmisc.mambo;
 
 import sunmisc.mambo.complex.*;
+import sunmisc.mambo.numbers.AddNumber;
+import sunmisc.mambo.numbers.MultiplyNumber;
 import sunmisc.mambo.palette.CachedPalette;
 import sunmisc.mambo.palette.ColorProperty;
 import sunmisc.mambo.palette.Palette;
@@ -8,8 +10,6 @@ import sunmisc.mambo.palette.SimplePalette;
 
 import java.awt.*;
 import java.util.function.Supplier;
-
-import static java.lang.Math.fma;
 
 public final class MandelbrotMaker extends FrameMaker {
 
@@ -48,14 +48,19 @@ public final class MandelbrotMaker extends FrameMaker {
     }
     @Override
     public Color renderAt(int x, int y) {
-        final double zoom = scale.get().doubleValue();
+        final Number zoom = scale.get();
 
         int d1 = x - hWidth, d2 = y - hHeight;
 
-        Complex start = new ComplexEnvelope(
-                fma(zoom, d1, point.x().doubleValue()),
-                fma(zoom, d2, point.y().doubleValue())
-        );
+
+        Number a = new AddNumber(
+                new MultiplyNumber(zoom, d1),
+                point.x());
+        Number b = new AddNumber(
+                new MultiplyNumber(zoom, d2),
+                point.y());
+        // a * b + c
+        Complex start = new ComplexEnvelope(a,b);
         Complex curr = start;
         int itr = 0;
         for (; itr < MAX_ITERATIONS; ++itr) {

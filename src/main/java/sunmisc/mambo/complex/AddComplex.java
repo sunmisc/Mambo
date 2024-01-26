@@ -1,5 +1,7 @@
 package sunmisc.mambo.complex;
 
+import sunmisc.mambo.numbers.AddNumber;
+
 public final class AddComplex implements Complex {
 
     private final Complex a, b;
@@ -11,11 +13,11 @@ public final class AddComplex implements Complex {
 
     @Override
     public Number real() {
-        return a.real().doubleValue() + b.real().doubleValue();
+        return new AddNumber(a.real(), b.real());
     }
 
     @Override
     public Number imaginary() {
-        return a.imaginary().doubleValue() + b.imaginary().doubleValue();
+        return new AddNumber(a.imaginary(), b.imaginary());
     }
 }

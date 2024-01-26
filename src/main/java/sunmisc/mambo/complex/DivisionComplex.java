@@ -1,5 +1,10 @@
 package sunmisc.mambo.complex;
 
+import sunmisc.mambo.numbers.AddNumber;
+import sunmisc.mambo.numbers.DivideNumber;
+import sunmisc.mambo.numbers.MultiplyNumber;
+import sunmisc.mambo.numbers.SubtractNumber;
+
 public final class DivisionComplex implements Complex {
 
     private final Complex a,b;
@@ -11,29 +16,36 @@ public final class DivisionComplex implements Complex {
 
     @Override
     public Number real() {
-        final double
-                ar = a.real().doubleValue(),
-                ai = a.imaginary().doubleValue();
-        final double
-                br = b.real().doubleValue(),
-                bi = b.imaginary().doubleValue();
+        final Number ar = a.real(), ai = a.imaginary();
+        final Number br = b.real(), bi = b.imaginary();
 
-        final double divisor = br * br + bi * bi;
+        Number divisor = new AddNumber(
+                new MultiplyNumber(br, br),
+                new MultiplyNumber(bi, bi)
+        );
 
-        return (ar * br + ai * bi) / divisor;
+        return new DivideNumber(
+                new AddNumber(
+                        new MultiplyNumber(ar, br),
+
+                        new MultiplyNumber(ai, bi)
+                ), divisor);
     }
 
     @Override
     public Number imaginary() {
-        final double
-                ar = a.real().doubleValue(),
-                ai = a.imaginary().doubleValue();
-        final double
-                br = b.real().doubleValue(),
-                bi = b.imaginary().doubleValue();
+        final Number ar = a.real(), ai = a.imaginary();
+        final Number br = b.real(), bi = b.imaginary();
 
-        final double divisor = br * br + bi * bi;
+        Number divisor = new AddNumber(
+                new MultiplyNumber(br, br),
+                new MultiplyNumber(bi, bi)
+        );
+        return new DivideNumber(
+                new SubtractNumber(
+                        new MultiplyNumber(ar, br),
 
-        return (ai * br - ar * bi) / divisor;
+                        new MultiplyNumber(ai, bi)
+                ), divisor);
     }
 }

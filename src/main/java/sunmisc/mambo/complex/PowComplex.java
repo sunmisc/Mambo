@@ -1,5 +1,9 @@
 package sunmisc.mambo.complex;
 
+import sunmisc.mambo.numbers.AddNumber;
+import sunmisc.mambo.numbers.MultiplyNumber;
+import sunmisc.mambo.numbers.SubtractNumber;
+
 public final class PowComplex implements Complex {
 
     private final Complex origin;
@@ -11,17 +15,16 @@ public final class PowComplex implements Complex {
 
     @Override
     public Number real() {
-        double x = origin.real().doubleValue();
-        double y = origin.imaginary().doubleValue();
-
-        return (x * x) - (y * y);
+        Number a = origin.real(), b = origin.imaginary();
+        Number x = new MultiplyNumber(a,a),
+               y = new MultiplyNumber(b,b);
+        return new SubtractNumber(x,y);
     }
 
     @Override
     public Number imaginary() {
-        double p =
-                origin.real().doubleValue() *
-                origin.imaginary().doubleValue();
-        return p + p;
+        Number a = origin.real(), b = origin.imaginary();
+        Number p = new MultiplyNumber(a,b);
+        return new AddNumber(p,p);
     }
 }

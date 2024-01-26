@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 public final class Test extends JPanel {
 
-    private static final int WIDTH = 1000, HEIGHT = 1000;
+    private static final int WIDTH = 800, HEIGHT = 800;
 
     private final UpdatableImageComponent component
             = new UpdatableImageComponent();
@@ -34,7 +34,6 @@ public final class Test extends JPanel {
 
         itr = new ImageIterator(processor);
     }
-
 
     public void start() {
         while (true) {

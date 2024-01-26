@@ -1,5 +1,8 @@
 package sunmisc.mambo.complex;
 
+import sunmisc.mambo.numbers.AddNumber;
+import sunmisc.mambo.numbers.MultiplyNumber;
+
 public final class NormComplex extends Number {
 
     private final Complex origin;
@@ -10,25 +13,37 @@ public final class NormComplex extends Number {
 
     @Override
     public int intValue() {
-        return  origin.real().intValue() * origin.real().intValue() +
-                origin.imaginary().intValue() * origin.imaginary().intValue();
+        Number a = origin.real(), b = origin.imaginary();
+        return new AddNumber(
+                new MultiplyNumber(a,a),
+                new MultiplyNumber(b,b)
+        ).intValue();
     }
 
     @Override
     public long longValue() {
-        return  origin.real().longValue() * origin.real().longValue() +
-                origin.imaginary().longValue() * origin.imaginary().longValue();
+        Number a = origin.real(), b = origin.imaginary();
+        return new AddNumber(
+                new MultiplyNumber(a,a),
+                new MultiplyNumber(b,b)
+        ).longValue();
     }
 
     @Override
     public float floatValue() {
-        return  origin.real().floatValue() * origin.real().floatValue() +
-                origin.imaginary().floatValue() * origin.imaginary().floatValue();
+        Number a = origin.real(), b = origin.imaginary();
+        return new AddNumber(
+                new MultiplyNumber(a,a),
+                new MultiplyNumber(b,b)
+        ).floatValue();
     }
 
     @Override
     public double doubleValue() {
-        return  origin.real().doubleValue() * origin.real().doubleValue() +
-                origin.imaginary().doubleValue() * origin.imaginary().doubleValue();
+        Number a = origin.real(), b = origin.imaginary();
+        return new AddNumber(
+                new MultiplyNumber(a,a),
+                new MultiplyNumber(b,b)
+        ).doubleValue();
     }
 }

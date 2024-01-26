@@ -3,16 +3,17 @@ package sunmisc.mambo.complex;
 import java.util.Objects;
 
 public class ComplexEnvelope implements Complex {
-    private final double real, imaginary;
 
-    public ComplexEnvelope(double real, double imaginary) {
+    // the Number class is slower and takes up more footprint, not optimized
+    private final Number real, imaginary;
+
+    public ComplexEnvelope(Number real, Number imaginary) {
         this.real = real;
         this.imaginary = imaginary;
     }
 
     public ComplexEnvelope(Complex complex) {
-        this(complex.real().doubleValue(),
-             complex.imaginary().doubleValue());
+        this(complex.real(), complex.imaginary());
     }
 
     @Override
